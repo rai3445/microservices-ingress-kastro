@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: techsolutions
-        image: kastrov/techsolutions-app:latest
+        image: 940348258782.dkr.ecr.us-east-1.amazonaws.com/techsolutions-app:latest
         ports:
         - containerPort: 80
         resources:
