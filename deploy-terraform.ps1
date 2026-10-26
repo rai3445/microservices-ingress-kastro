@@ -7,6 +7,20 @@ $binDir = Join-Path $HOME ".local\bin"
 $pyScripts = Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\Scripts"
 $env:Path = "$binDir;$pyScripts;C:\Program Files\Amazon\AWSCLIV2;$env:Path"
 
+# Prompt for credentials if not already in environment
+if ([string]::IsNullOrWhiteSpace($env:AWS_ACCESS_KEY_ID)) {
+    $env:AWS_ACCESS_KEY_ID = Read-Host "Enter AWS Access Key ID"
+}
+if ([string]::IsNullOrWhiteSpace($env:AWS_SECRET_ACCESS_KEY)) {
+    $secureKey = Read-Host "Enter AWS Secret Access Key" -AsSecureString
+    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
+    $env:AWS_SECRET_ACCESS_KEY = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+}
+if ([string]::IsNullOrWhiteSpace($env:AWS_REGION)) {
+    $env:AWS_REGION = "us-east-1"
+    $env:AWS_DEFAULT_REGION = "us-east-1"
+}
+
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host "   Starting Hassle-Free Terraform Deploy (AWS ECS Fargate)        " -ForegroundColor Cyan
 Write-Host "==================================================================" -ForegroundColor Cyan
