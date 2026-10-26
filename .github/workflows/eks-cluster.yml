@@ -1,0 +1,82 @@
+name: AWS EKS Cluster Provisioner (eksctl)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'create'
+        type: choice
+        options:
+          - create
+          - delete
+      cluster_name:
+        description: 'EKS Cluster Name'
+        required: true
+        default: 'kastro-cluster'
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      node_type:
+        description: 'Node EC2 Instance Type'
+        required: true
+        default: 't2.medium'
+      nodes:
+        description: 'Number of worker nodes'
+        required: true
+        default: '2'
+
+jobs:
+  manage-cluster:
+    name: ${{ github.event.inputs.action == 'create' && 'Create EKS Cluster' || 'Delete EKS Cluster' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ github.event.inputs.region }}
+
+      - name: Install eksctl
+        run: |
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+          curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf "eksctl_$PLATFORM.tar.gz" -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+          eksctl version
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Create EKS Cluster & Ingress Controller
+        if: ${{ github.event.inputs.action == 'create' }}
+        run: |
+          echo "Creating EKS Cluster '${{ github.event.inputs.cluster_name }}' in '${{ github.event.inputs.region }}'..."
+          eksctl create cluster \
+            --name ${{ github.event.inputs.cluster_name }} \
+            --region ${{ github.event.inputs.region }} \
+            --node-type ${{ github.event.inputs.node_type }} \
+            --nodes ${{ github.event.inputs.nodes }} \
+            --zones ${{ github.event.inputs.region }}a,${{ github.event.inputs.region }}b
+
+          echo "Configuring kubeconfig..."
+          aws eks update-kubeconfig --region ${{ github.event.inputs.region }} --name ${{ github.event.inputs.cluster_name }}
+          kubectl get nodes
+
+          echo "Installing NGINX Ingress Controller..."
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/aws/deploy.yaml
+          
+          echo "Cluster and Ingress Controller provisioned successfully!"
+
+      - name: Delete EKS Cluster
+        if: ${{ github.event.inputs.action == 'delete' }}
+        run: |
+          echo "Deleting EKS Cluster '${{ github.event.inputs.cluster_name }}' in '${{ github.event.inputs.region }}'..."
+          eksctl delete cluster --name ${{ github.event.inputs.cluster_name }} --region ${{ github.event.inputs.region }}
+          echo "Cluster deletion finished!"

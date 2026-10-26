@@ -1,0 +1,129 @@
+name: CI/CD Pipeline - Deploy to AWS EKS via Amazon ECR
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: kastro-cluster
+  ECR_REPOSITORY: techsolutions-app
+  APP_NAME: techsolutions
+
+jobs:
+  build-and-deploy:
+    name: Build Image, Push to ECR & Deploy to EKS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure ECR Repository Exists
+        run: |
+          echo "Checking if ECR repository '${{ env.ECR_REPOSITORY }}' exists..."
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} --region ${{ secrets.AWS_REGION || env.AWS_REGION }} || \
+          aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ secrets.AWS_REGION || env.AWS_REGION }} --image-scanning-configuration scanOnPush=true
+          echo "ECR repository is ready."
+
+      - name: Build, Tag, and Push Docker Image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Building Docker image..."
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
+
+          echo "Pushing Docker images to Amazon ECR..."
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$REPOSITORY:latest
+
+          echo "IMAGE_URI=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION || env.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME || env.EKS_CLUSTER_NAME }}
+          kubectl config current-context
+          kubectl get nodes
+
+      - name: Ensure NGINX Ingress Controller is Installed
+        run: |
+          echo "Checking / Deploying AWS NGINX Ingress Controller..."
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/aws/deploy.yaml
+          
+          echo "Waiting for ingress-nginx controller rollout..."
+          kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=180s || true
+
+      - name: Update Deployment Image to ECR URI
+        run: |
+          echo "Updating deployment image to: ${{ env.IMAGE_URI }}"
+          sed -i "s|image: .*|image: ${{ env.IMAGE_URI }}|g" k8s/deployment.yaml
+
+      - name: Deploy Application to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl rollout status deployment/${{ env.APP_NAME }}-deployment --timeout=180s
+          kubectl get pods -l app=${{ env.APP_NAME }}
+          kubectl get svc ${{ env.APP_NAME }}-service
+
+      - name: Deploy Ingress Resource
+        run: |
+          kubectl apply -f k8s/ingress.yaml
+          sleep 5
+          kubectl get ingress ${{ env.APP_NAME }}-ingress
+          kubectl describe ingress ${{ env.APP_NAME }}-ingress
+
+      - name: Retrieve Public Ingress LoadBalancer URL
+        run: |
+          echo "Waiting for AWS Ingress Load Balancer DNS name..."
+          INGRESS_HOST=""
+          for i in {1..30}; do
+            INGRESS_HOST=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+            if [ -n "$INGRESS_HOST" ]; then
+              break
+            fi
+            echo "Waiting for AWS Load Balancer ($i/30)..."
+            sleep 10
+          done
+
+          if [ -z "$INGRESS_HOST" ]; then
+            echo "⚠️ AWS Load Balancer Hostname is still provisioning. Check 'kubectl get svc ingress-nginx-controller -n ingress-nginx' in a few minutes."
+          else
+            echo "=========================================================="
+            echo "✅ DEPLOYMENT SUCCESSFUL!"
+            echo "=========================================================="
+            echo "Application URL: http://$INGRESS_HOST"
+            echo ""
+            echo "Available Endpoints:"
+            echo "- Home:     http://$INGRESS_HOST/"
+            echo "- About:    http://$INGRESS_HOST/about"
+            echo "- Services: http://$INGRESS_HOST/services"
+            echo "- Contact:  http://$INGRESS_HOST/contact"
+            echo "=========================================================="
+
+            echo "### 🚀 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+            echo "**ECR Image:** \`${{ env.IMAGE_URI }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Application URL:** [http://$INGRESS_HOST](http://$INGRESS_HOST)" >> $GITHUB_STEP_SUMMARY
+            echo "- [Home](http://$INGRESS_HOST/)" >> $GITHUB_STEP_SUMMARY
+            echo "- [About](http://$INGRESS_HOST/about)" >> $GITHUB_STEP_SUMMARY
+            echo "- [Services](http://$INGRESS_HOST/services)" >> $GITHUB_STEP_SUMMARY
+            echo "- [Contact](http://$INGRESS_HOST/contact)" >> $GITHUB_STEP_SUMMARY
+          fi
