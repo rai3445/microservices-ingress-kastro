@@ -94,10 +94,11 @@ echo -e "${GREEN}✓ All tools are ready!${NC}"
 
 # 4. Authenticate with AWS
 echo -e "\n${BLUE}🔐 Step 2: Validating AWS Credentials...${NC}"
-CALLER_IDENTITY=$(aws sts get-caller-identity --output json 2>/dev/null) || {
-    echo -e "${RED}[ERROR] Failed to authenticate with AWS. Please check your credentials.${NC}"
+if ! CALLER_IDENTITY=$(aws sts get-caller-identity --output json 2>&1); then
+    echo -e "${RED}[ERROR] Failed to authenticate with AWS:${NC}"
+    echo -e "${RED}$CALLER_IDENTITY${NC}"
     exit 1
-}
+fi
 AWS_ACCOUNT_ID=$(echo "$CALLER_IDENTITY" | grep -o '"Account": "[^"]*' | cut -d'"' -f4)
 echo -e "${GREEN}✓ Connected to AWS Account: $AWS_ACCOUNT_ID (Region: $AWS_REGION)${NC}"
 

@@ -40,18 +40,15 @@ $env:AWS_REGION = $AWS_REGION
 # Setup Local Bin Directory
 $binDir = Join-Path $HOME ".local\bin"
 if (!(Test-Path $binDir)) { New-Item -ItemType Directory -Path $binDir -Force | Out-Null }
-$env:Path = "$binDir;$env:Path"
+$pyScripts = Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\Scripts"
+$appDataPython = Join-Path $env:APPDATA "Python\Python312\Scripts"
+$env:Path = "$binDir;$pyScripts;$appDataPython;C:\Program Files\Amazon\AWSCLIV2;$env:Path"
 
 # 2. Check / Install AWS CLI if missing
 Write-Host "`n[Step 1] Checking CLI dependencies..." -ForegroundColor Blue
 if (!(Get-Command aws -ErrorAction SilentlyContinue)) {
-    Write-Host "AWS CLI not found. Installing AWS CLI on Windows..." -ForegroundColor Yellow
-    $installerUrl = "https://awscli.amazonaws.com/AWSCLIV2.msi"
-    $installerPath = Join-Path $env:TEMP "AWSCLIV2.msi"
-    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-    Start-Process -FilePath "msiexec.exe" -ArgumentList @("/i", "`"$installerPath`"", "/qn") -Wait
-    $env:Path = "C:\Program Files\Amazon\AWSCLIV2;$env:Path"
-    Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
+    Write-Host "AWS CLI not found. Installing awscli via pip..." -ForegroundColor Yellow
+    python -m pip install --quiet awscli
 }
 
 # Check kubectl
@@ -79,14 +76,15 @@ Write-Host "[OK] All dependencies verified!" -ForegroundColor Green
 
 # 3. Authenticate with AWS
 Write-Host "`n[Step 2] Validating AWS Credentials..." -ForegroundColor Blue
-try {
-    $identityJson = aws sts get-caller-identity --output json | ConvertFrom-Json
-    $AWS_ACCOUNT_ID = $identityJson.Account
-    Write-Host "[OK] Connected to AWS Account: $AWS_ACCOUNT_ID (Region: $AWS_REGION)" -ForegroundColor Green
-} catch {
-    Write-Host "[ERROR] Failed to authenticate with AWS. Please check your credentials." -ForegroundColor Red
+$callerOutput = aws sts get-caller-identity --output json 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ERROR] AWS Authentication Failed:" -ForegroundColor Red
+    Write-Host $callerOutput -ForegroundColor Red
     Exit 1
 }
+$identityJson = $callerOutput | ConvertFrom-Json
+$AWS_ACCOUNT_ID = $identityJson.Account
+Write-Host "[OK] Connected to AWS Account: $AWS_ACCOUNT_ID (Region: $AWS_REGION)" -ForegroundColor Green
 
 # 4. Amazon ECR Setup
 Write-Host "`n[Step 3] Setting up Amazon ECR ($ECR_REPO_NAME)..." -ForegroundColor Blue
