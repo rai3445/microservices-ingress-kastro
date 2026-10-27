@@ -1,418 +1,693 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn With KASTRO - Jenkins Docker Kubernetes Training</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gobind Rai | Cloud and DevOps Engineer Portfolio">
+  <title>Gobind Rai | Cloud & DevOps</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #ffffff;
-        }
+  <style>
+    :root {
+      --bg: #080d18;
+      --card: #111c2d;
+      --text: #edf3ff;
+      --muted: #a2b0c7;
+      --blue: #68a7ff;
+      --cyan: #61e2d1;
+      --border: #26354b;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Navigation */
-        .navbar {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
-        }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
 
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
 
-        .nav-logo h2 {
-            color: white;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
+    .container {
+      width: min(1120px, 90%);
+      margin: auto;
+    }
 
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(8, 13, 24, 0.96);
+      border-bottom: 1px solid var(--border);
+    }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
+    .nav-inner {
+      min-height: 73px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 120px 0 80px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            min-height: 100vh;
-        }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
 
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-        }
+    .logo span {
+      color: var(--cyan);
+    }
 
-        .hero-content h1 span {
-            color: #2563eb;
-            display: block;
-            font-size: 3rem;
-        }
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      list-style: none;
+    }
 
-        .hero-content p {
-            font-size: 1.25rem;
-            color: #64748b;
-            margin-bottom: 2.5rem;
-            line-height: 1.7;
-        }
+    .nav-links a {
+      color: var(--muted);
+      font-weight: 500;
+    }
 
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
+    .nav-links a:hover {
+      color: var(--cyan);
+    }
 
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            text-align: center;
-            min-width: 180px;
-        }
+    .hero {
+      min-height: 85vh;
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      align-items: center;
+      gap: 45px;
+      padding: 80px 0;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-        }
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 30px;
+      color: var(--cyan);
+      margin-bottom: 22px;
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
-        }
+    h1 {
+      font-size: clamp(2.6rem, 6vw, 4.8rem);
+      line-height: 1.12;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: #2563eb;
-            border: 2px solid #2563eb;
-        }
+    h1 span {
+      color: var(--blue);
+    }
 
-        .btn-secondary:hover {
-            background: #2563eb;
-            color: white;
-            transform: translateY(-3px);
-        }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.08rem;
+      margin-bottom: 25px;
+    }
 
-        .hero-image {
-            position: relative;
-        }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
 
-        .hero-image::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            right: 20px;
-            bottom: 20px;
-            background: linear-gradient(135deg, #2563eb 0%, #0d9488 100%);
-            border-radius: 20px;
-            z-index: -1;
-            opacity: 0.1;
-        }
+    .btn {
+      display: inline-block;
+      padding: 12px 19px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      transition: 0.25s;
+    }
 
-        .hero-image img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
+    .btn-primary {
+      background: linear-gradient(110deg, var(--blue), var(--cyan));
+      color: #07111d;
+      border: none;
+    }
 
-        /* Features Section */
-        .features {
-            padding: 100px 0;
-            background: #ffffff;
-        }
+    .btn:hover {
+      transform: translateY(-3px);
+    }
 
-        .features h2 {
-            text-align: center;
-            font-size: 3rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 1rem;
-        }
+    .terminal {
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
 
-        .features-subtitle {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #64748b;
-            margin-bottom: 4rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+    .terminal p {
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2.5rem;
-            margin-top: 4rem;
-        }
+    .terminal .prompt {
+      color: var(--cyan);
+    }
 
-        .feature-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #f1f5f9;
-            position: relative;
-            overflow: hidden;
-        }
+    .terminal .output {
+      color: var(--blue);
+    }
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2563eb, #0d9488, #ea580c);
-        }
+    section {
+      padding: 75px 0;
+    }
 
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
+    .section-title {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
 
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-        }
+    .section-description {
+      color: var(--muted);
+      margin-bottom: 32px;
+      max-width: 700px;
+    }
 
-        .feature-card:nth-child(2) .feature-icon {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
 
-        .feature-card:nth-child(3) .feature-icon {
-            background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
-        }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 16px;
+      transition: 0.25s;
+    }
 
-        .feature-card h3 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1rem;
-        }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--blue);
+    }
 
-        .feature-card p {
-            color: #64748b;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
+    .card .icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
 
-        .card-link {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
+    .card h3 {
+      margin-bottom: 10px;
+    }
 
-        .card-link:hover {
-            color: #1d4ed8;
-            text-decoration: underline;
-        }
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
 
-        /* Footer */
-        .footer {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            text-align: center;
-            padding: 3rem 0;
-        }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 15px;
+    }
 
-        .footer p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+    .tag {
+      font-size: 0.78rem;
+      padding: 4px 9px;
+      background: #1b2b42;
+      border-radius: 6px;
+      color: #c8dcf7;
+    }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-menu {
-                display: none;
-            }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
 
-            .hero {
-                grid-template-columns: 1fr;
-                padding: 100px 0 60px;
-                text-align: center;
-            }
+    .skill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 18px;
+      border-radius: 12px;
+    }
 
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
+    .skill h3 {
+      font-size: 1rem;
+      margin-bottom: 7px;
+    }
 
-            .hero-content h1 span {
-                font-size: 2.2rem;
-            }
+    .skill p {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
 
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
+    .about-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 28px;
+      border-radius: 16px;
+    }
 
-            .btn {
-                min-width: 150px;
-                padding: 0.875rem 1.5rem;
-            }
-        }
+    .about-box p {
+      color: var(--muted);
+      margin-top: 12px;
+    }
 
-        @media (max-width: 480px) {
-            .hero-content h1 {
-                font-size: 2rem;
-            }
+    .contact-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 35px;
+      border-radius: 18px;
+      text-align: center;
+    }
 
-            .hero-content h1 span {
-                font-size: 1.8rem;
-            }
+    .contact-box p {
+      color: var(--muted);
+      margin: 12px 0 22px;
+    }
 
-            .features h2 {
-                font-size: 2.5rem;
-            }
+    footer {
+      text-align: center;
+      padding: 25px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+    }
 
-            .feature-card {
-                padding: 2rem;
-            }
-        }
-    </style>
+    @media (max-width: 850px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .skills-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .nav-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 15px 0;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 14px;
+        font-size: 0.9rem;
+      }
+
+      .grid,
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        letter-spacing: -1px;
+      }
+
+      section {
+        padding: 50px 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Learn With KASTRO</h2>
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="/" class="nav-link active">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/about" class="nav-link">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/courses" class="nav-link">Modules</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/contact" class="nav-link">Contact</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <header class="hero">
-        <div class="hero-content">
-            <h1>Welcome to <span>Jenkins + Docker + Kubernetes + Terraform Training</span></h1>
-            <p>Master DevOps with comprehensive hands-on training. Build your career with industry-relevant skills, real-world projects, and expert guidance in the most demanding technologies.</p>
-            <div class="hero-buttons">
-                <a href="/courses" class="btn btn-primary">Explore the Course</a>
-                <a href="/contact" class="btn btn-secondary">Get Started</a>
-            </div>
-        </div>
-        <div class="hero-image">
-            <img src="https://www.aukfood.fr/wp-content/uploads/2021/02/Docker-vs-Kubernetes-1024x616-1.png" alt="DevOps Training">
-        </div>
-    </header>
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#home" class="logo">Gobind<span> Rai.</span></a>
 
-    <section class="features">
-        <div class="container">
-            <h2>Why Choose Our Training?</h2>
-            <p class="features-subtitle">Experience world-class DevOps training with practical, hands-on learning approach</p>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        📹
-                    </div>
-                    <h3>Live Sessions</h3>
-                    <p>Interactive live training sessions with real-time Q&A, hands-on demonstrations, and personalized guidance from industry experts.</p>
-                    
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        🎯
-                    </div>
-                    <h3>Scenario Based Learning</h3>
-                    <p>Learn through real-world scenarios and practical use cases that mirror actual industry challenges and requirements.</p>
-                    
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        📁
-                    </div>
-                    <h3>10+ Real Time Projects</h3>
-                    <p>Hands-on experience with over 10 real-time projects covering CI/CD pipelines, containerization, and orchestration.</p>
-                    
-                </div>
-            </div>
-        </div>
-    </section>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Learn With KASTRO. All rights reserved.</p>
+  <!-- Hero Section -->
+  <header class="container hero" id="home">
+    <div>
+      <div class="badge">B.Tech CSE | Final Year Student</div>
+
+      <h1>
+        Hi, I'm Gobind Rai.<br>
+        <span>Cloud & DevOps Enthusiast.</span>
+      </h1>
+
+      <p>
+        I'm a Computer Science student passionate about Cloud Computing,
+        DevOps, automation, and backend development. I enjoy building
+        practical projects using AWS, Docker, Kubernetes, Linux, and CI/CD
+        tools while continuously improving my technical skills.
+      </p>
+
+      <div class="buttons">
+        <a href="#projects" class="btn btn-primary">Explore Projects ↗</a>
+        <a href="https://www.linkedin.com/in/gobind-rai45/"
+           target="_blank" rel="noopener" class="btn">
+          Connect on LinkedIn
+        </a>
+      </div>
+
+      <div class="buttons">
+        <a href="https://github.com/rai3445"
+           target="_blank" rel="noopener" class="btn">
+          GitHub ↗
+        </a>
+      </div>
+    </div>
+
+    <div class="terminal">
+      <p><span class="prompt">gobind@cloud:~$</span> whoami</p>
+      <p class="output">Cloud & DevOps Learner</p>
+
+      <p><span class="prompt">gobind@cloud:~$</span> skills</p>
+      <p class="output">AWS | Docker | Kubernetes</p>
+      <p class="output">Linux | Jenkins | CI/CD</p>
+
+      <p><span class="prompt">gobind@cloud:~$</span> git status</p>
+      <p class="output">Learning and building every day.</p>
+    </div>
+  </header>
+
+  <!-- About Section -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">About Me</h2>
+
+      <p class="section-description">
+        A little about my background, interests, and career goals.
+      </p>
+
+      <div class="about-box">
+        <h3>My Journey</h3>
+
+        <p>
+          I'm pursuing a B.Tech in Computer Science and Engineering at
+          GNA University. My main career interest is Cloud and DevOps
+          engineering.
+        </p>
+
+        <p>
+          I have been learning through hands-on projects involving
+          Docker Compose, Jenkins pipelines, AWS infrastructure,
+          Kubernetes, databases, and web applications.
+        </p>
+
+        <p>
+          I believe in learning by doing: understanding the fundamentals,
+          writing code, troubleshooting problems, and improving projects
+          step by step.
+        </p>
+
+        <p>
+          My goal is to secure an entry-level Cloud or DevOps opportunity
+          where I can apply my skills, learn from experienced engineers,
+          and contribute to real-world projects.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title">Technical Skills</h2>
+
+      <p class="section-description">
+        Technologies I have worked with or studied through projects and labs.
+      </p>
+
+      <div class="skills-grid">
+        <div class="skill">
+          <h3>☁️ Cloud Computing</h3>
+          <p>AWS, Azure fundamentals, EC2, VPC, IAM, ECR, EKS</p>
         </div>
-    </footer>
+
+        <div class="skill">
+          <h3>🐳 Containers</h3>
+          <p>Docker, Docker Compose, images, containers, volumes</p>
+        </div>
+
+        <div class="skill">
+          <h3>⚙️ CI/CD</h3>
+          <p>Jenkins, GitHub Actions, Git, automated pipelines</p>
+        </div>
+
+        <div class="skill">
+          <h3>🐧 Operating Systems</h3>
+          <p>Linux, Ubuntu, Bash, command-line troubleshooting</p>
+        </div>
+
+        <div class="skill">
+          <h3>☸️ Kubernetes</h3>
+          <p>Kubernetes, kubectl, EKS, eksctl</p>
+        </div>
+
+        <div class="skill">
+          <h3>🌐 Web Development</h3>
+          <p>HTML, CSS, JavaScript, React, Node.js, Express</p>
+        </div>
+
+        <div class="skill">
+          <h3>🗄️ Databases</h3>
+          <p>MongoDB, MySQL, MariaDB, SQL</p>
+        </div>
+
+        <div class="skill">
+          <h3>🔧 Programming & Tools</h3>
+          <p>C, C++, Python, Flask, GitHub, VS Code</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title">My Projects</h2>
+
+      <p class="section-description">
+        Selected projects and practical work from my Cloud, DevOps,
+        and development learning journey.
+      </p>
+
+      <div class="grid">
+
+        <article class="card">
+          <div class="icon">🐳</div>
+          <h3>MERN Stack with Docker Compose</h3>
+
+          <p>
+            A containerized MERN application using Docker Compose,
+            MongoDB, frontend and backend services, and Nginx
+            reverse proxy configuration.
+          </p>
+
+          <div class="tags">
+            <span class="tag">Docker</span>
+            <span class="tag">MERN</span>
+            <span class="tag">Nginx</span>
+          </div>
+
+          <p style="margin-top:18px">
+            <a href="https://github.com/rai3445/mern-docker-compose"
+               target="_blank" rel="noopener">
+              View Repository ↗
+            </a>
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="icon">🗄️</div>
+          <h3>Doctor Management Database</h3>
+
+          <p>
+            A Docker-based database project using MariaDB,
+            SQL initialization scripts, environment variables,
+            and persistent storage volumes.
+          </p>
+
+          <div class="tags">
+            <span class="tag">MariaDB</span>
+            <span class="tag">Docker</span>
+            <span class="tag">SQL</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon">🔄</div>
+          <h3>Jenkins CI/CD Pipeline</h3>
+
+          <p>
+            A Node.js application deployment workflow practiced with
+            Jenkins, GitHub, Docker, and an AWS EC2 environment.
+          </p>
+
+          <div class="tags">
+            <span class="tag">Jenkins</span>
+            <span class="tag">Docker</span>
+            <span class="tag">AWS EC2</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon">☸️</div>
+          <h3>Kubernetes & AWS EKS</h3>
+
+          <p>
+            Hands-on learning with Kubernetes clusters, pods,
+            deployments, services, kubectl, and AWS EKS.
+          </p>
+
+          <div class="tags">
+            <span class="tag">Kubernetes</span>
+            <span class="tag">EKS</span>
+            <span class="tag">AWS</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon">🌦️</div>
+          <h3>Weather Information Fetcher</h3>
+
+          <p>
+            A serverless project combining AWS Lambda, API Gateway,
+            a weather API, S3, and Amplify.
+          </p>
+
+          <div class="tags">
+            <span class="tag">AWS Lambda</span>
+            <span class="tag">API Gateway</span>
+            <span class="tag">S3</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon">🔐</div>
+          <h3>Secure Cloud File Storage</h3>
+
+          <p>
+            A cloud-based file storage learning project using
+            AWS and Flask to practice backend development
+            and cloud deployment.
+          </p>
+
+          <div class="tags">
+            <span class="tag">AWS</span>
+            <span class="tag">Python</span>
+            <span class="tag">Flask</span>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="buttons" style="margin-top:28px">
+        <a href="https://github.com/rai3445"
+           target="_blank" rel="noopener" class="btn btn-primary">
+          View All GitHub Projects ↗
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Education Section -->
+  <section id="education">
+    <div class="container">
+      <h2 class="section-title">Education & Career Goals</h2>
+
+      <div class="grid">
+        <div class="card">
+          <div class="icon">🎓</div>
+          <h3>B.Tech CSE</h3>
+          <p>GNA University</p>
+          <p>Final-year Computer Science and Engineering student.</p>
+        </div>
+
+        <div class="card">
+          <div class="icon">🚀</div>
+          <h3>Career Interests</h3>
+          <p>
+            Cloud Computing, DevOps engineering, CI/CD automation,
+            container orchestration, and cloud infrastructure.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="icon">🤝</div>
+          <h3>Open to Opportunities</h3>
+          <p>
+            Interested in entry-level Cloud and DevOps roles
+            and opportunities to learn through practical work.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <div class="container">
+      <div class="contact-box">
+        <h2 class="section-title">Let's Connect!</h2>
+
+        <p>
+          Have a project idea, internship opportunity, or Cloud
+          and DevOps discussion? Feel free to connect with me.
+        </p>
+
+        <div class="buttons" style="justify-content:center">
+          <a href="https://www.linkedin.com/in/gobind-rai45/"
+             target="_blank" rel="noopener" class="btn btn-primary">
+            LinkedIn ↗
+          </a>
+
+          <a href="https://github.com/rai3445"
+             target="_blank" rel="noopener" class="btn">
+            GitHub ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>
+        © <span id="year"></span> Gobind Rai |
+        Cloud • DevOps • Continuous Learning
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  </script>
+
 </body>
 </html>
